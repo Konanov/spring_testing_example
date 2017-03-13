@@ -18,15 +18,13 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import static org.hamcrest.MatcherAssert.*;
 import static org.hamcrest.Matchers.*;
-import static com.teamtreehouse.domain.Favorite.FavoriteBuilder;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(Application.class)
 @DatabaseSetup("classpath:favorites.xml")
 @TestExecutionListeners({
-    DependencyInjectionTestExecutionListener.class,
-    DbUnitTestExecutionListener.class
-})
+        DependencyInjectionTestExecutionListener.class,
+        DbUnitTestExecutionListener.class})
 public class FavoriteDaoTest {
     @Autowired
     private FavoriteDao dao;
@@ -35,20 +33,19 @@ public class FavoriteDaoTest {
     public void setup() {
         User user = new User();
         user.setId(1L);
-        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user,null));
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user, null));
     }
 
     @Test
     public void findAll_ShouldReturnTwo() throws Exception {
-        assertThat(dao.findAll(),hasSize(2));
+        assertThat(dao.findAll(), hasSize(2));
     }
 
     @Test
     public void save_ShouldPersistEntity() throws Exception {
-        String placeId = "treehouseASKDFJASD#";
-        Favorite fave = new FavoriteBuilder()
-            .withPlaceId(placeId).build();
+        String placeId = "teamtreehouseJOIASDJH#";
+        Favorite fave = new Favorite.FavoriteBuilder().withPlaceId(placeId).build();
         dao.saveForCurrentUser(fave);
-        assertThat(dao.findByPlaceId(placeId),notNullValue(Favorite.class));
+        assertThat(dao.findByPlaceId(placeId), notNullValue(Favorite.class));
     }
 }

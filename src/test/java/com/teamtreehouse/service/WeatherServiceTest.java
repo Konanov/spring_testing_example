@@ -26,44 +26,21 @@ import static org.hamcrest.Matchers.hasSize;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 public class WeatherServiceTest {
-    @Autowired
-    private WeatherService service;
 
-    private Location loc;
+    @Autowired
+    private WeatherService weatherService;
+
+    private Location location;
     private Weather weather;
 
     private static final double ERROR_GEO = 0.0000001;
     private static final double ERROR_TIME = 5000;
 
-    @Before
-    public void setup() {
-        loc = new Location(41.9403795,-87.65318049999999);
-        weather = service.findByLocation(loc);
-    }
-
-    @Test
-    public void findByLocation_ShouldReturnSameCoords() throws Exception {
-        assertThat(weather.getLatitude(),closeTo(loc.getLatitude(),ERROR_GEO));
-        assertThat(weather.getLongitude(),closeTo(loc.getLongitude(),ERROR_GEO));
-    }
-
-    @Test
-    public void findByLocation_ShouldReturn8DaysForecastData() throws Exception {
-        assertThat(weather.getDaily().getData(),hasSize(8));
-    }
-
-    @Test
-    public void findByLocation_ShouldReturnCurrentConditions() throws Exception {
-        Instant now = Instant.now();
-        double duration = Duration.between(now,weather.getCurrently().getTime()).toMillis();
-        assertThat(duration,closeTo(0,ERROR_TIME));
-    }
-
     @Configuration
     @PropertySource("api.properties")
     public static class TestConfig {
         @Autowired
-        private Environment env;
+        private Environment environment;
 
         @Bean
         public RestTemplate restTemplate() {
@@ -72,12 +49,35 @@ public class WeatherServiceTest {
 
         @Bean
         public WeatherService weatherService() {
-            WeatherService service = new WeatherServiceImpl(
-                env.getProperty("weather.api.name"),
-                env.getProperty("weather.api.key"),
-                env.getProperty("weather.api.host")
+            return new WeatherServiceImpl(
+                    environment.getProperty("weather.api.name"),
+                    environment.getProperty("weather.api.key"),
+                    environment.getProperty("weather.api.host")
             );
-            return service;
         }
+    }
+
+    @Before
+    public void setup() {
+        location = new Location(41.9403795, -87.65318049999999);
+        weather = weatherService.findByLocation(location);
+    }
+
+    @Test
+    public void findByLocation_ShouldReturnSameCoords() throws Exception {
+        assertThat(weather.getLatitude(), closeTo(location.getLatitude(), ERROR_GEO));
+        assertThat(weather.getLongitude(), closeTo(location.getLongitude(), ERROR_GEO));
+    }
+
+    @Test
+    public void findByLocation_ShouldReturn8DaysForecastData() throws Exception {
+        assertThat(weather.getDaily().getData(), hasSize(8));
+    }
+
+    @Test
+    public void findByLocation_ShouldReturnCurrentConditions() throws Exception {
+        Instant now = Instant.now();
+        double duration = Duration.between(now, weather.getCurrently().getTime()).toMillis();
+        assertThat(duration, closeTo(0, ERROR_TIME));
     }
 }
